@@ -3,14 +3,21 @@ const { Schema, model, trusted } = require("mongoose");
 const UserSchema = Schema({
     name: {
         type: String,
-        required: trust
+        required: true
     },
     surname: String,
+    bio: {
+        type: String
+    },
     nick: {
         type: String,
         required: true
     },
     email: {
+        type: String,
+        required: true
+    },
+    password: {
         type: String,
         required: true
     },
@@ -23,7 +30,7 @@ const UserSchema = Schema({
         default: "defaultAvatar.png"
     },
     createdAt: {
-        type: Data,
+        type: Date,
         default: Date.now
     }
 });

@@ -10,7 +10,6 @@
   "author": "Xavier Romeu",
   "license": "ISC",
   "dependencies": {
-    "bcrypt-nodejs": "^0.0.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "jwt-simple": "^0.5.6",
