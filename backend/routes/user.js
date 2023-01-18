@@ -21,13 +21,14 @@ const uploads = multer({ storage });
 router.get("/test", check.auth, UserController.test);
 router.get("/profile/:id", check.auth, UserController.getProfile);
 router.get("/list/:page?", check.auth, UserController.getUserList);
+router.get("/avatar/:file", check.auth, UserController.avatar);
 
 //POST
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
-router.post("/upload", [check.auth, uploads.single("file0")], UserController.upload);
+router.post("/upload", [check.auth, uploads.single("file0")], UserController.uploadAvatar);
 
 //PUT
-router.put("/update", check.auth, UserController.update);
+router.put("/update", check.auth, UserController.updateUser);
 
 module.exports = router;

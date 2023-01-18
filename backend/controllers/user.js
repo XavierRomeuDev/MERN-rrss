@@ -2,6 +2,9 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
 const mongoosePaginate = require("mongoose-pagination");
+const fs = require("fs");
+const path = require("path");
+const followService = require("../services/followService");
 
 const test = (req, res) => {
   return res.status(200).send({
@@ -107,7 +110,7 @@ const getProfile = (req, res) => {
 
   User.findById(userId)
     .select({ password: 0, role: 0 })
-    .exec((err, userProfile) => {
+    .exec(async (err, userProfile) => {
       if (err || !userProfile) {
         return res.status(404).send({
           status: "Error",
@@ -115,9 +118,13 @@ const getProfile = (req, res) => {
         });
       }
 
+      const followInfo = await followService.followingUser(req.user.id, id);
+
       return res.status(200).send({
         status: "Success",
         user: userProfile,
+        following: followInfo.following,
+        follower: followInfo.follower,
       });
     });
 };
@@ -133,7 +140,7 @@ const getUserList = (req, res) => {
 
   User.find()
     .sort("_id")
-    .paginate(page, itemsPerPage, (err, users, total) => {
+    .paginate(page, itemsPerPage, async (err, users, total) => {
       if (err || !users) {
         return res.status(404).send({
           status: "Error",
@@ -142,6 +149,8 @@ const getUserList = (req, res) => {
         });
       }
 
+      let followUserIds = await followService.followUserIds(req.user.id);
+
       return res.status(200).send({
         status: "Success",
         page,
@@ -149,11 +158,13 @@ const getUserList = (req, res) => {
         itemsPerPage,
         total,
         pages: Math.ceil(total / itemsPerPage),
+        user_following: followUserIds.following,
+        user_followers: followUserIds.followers,
       });
     });
 };
 
-const update = (req, res) => {
+const updateUser = (req, res) => {
   let userIdentity = req.user;
   delete userIdentity.role;
   delete userIdentity.image;
@@ -220,12 +231,69 @@ const update = (req, res) => {
   });
 };
 
-const upload = (req, res) => {
-  return res.status(200).send({
-    status: "Success",
-    message: "User profile pic uploaded succesfully",
-    user: req.user,
-    file: req.file,
+const uploadAvatar = (req, res) => {
+  if (!req.file) {
+    return res.status(404).send({
+      status: "Error",
+      message: "Request without file attached",
+    });
+  }
+
+  let image = req.file.originalname;
+
+  const imageSplit = image.split(".");
+  const extension = imageSplit[1];
+
+  if (
+    extension != "png" &&
+    extension != "jpg" &&
+    extension != "jpeg" &&
+    extension != "gif" &&
+    extension != "webp"
+  ) {
+    const filePath = req.file.path;
+    const fileDeleted = fs.unlinkSync(filePath);
+
+    return res.status(400).send({
+      status: "Error",
+      message: "Invalid file extension",
+    });
+  }
+
+  User.findOneAndUpdate(
+    { _id: req.user.id },
+    { image: req.file.filename },
+    { new: true },
+    (err, avatarUpdated) => {
+      if (err || !avatarUpdated) {
+        return res.status(500).send({
+          status: "Error",
+          message: "Can't update avatar",
+        });
+      }
+
+      return res.status(200).send({
+        status: "Success",
+        message: "User profile pic uploaded succesfully",
+        user: avatarUpdated,
+      });
+    }
+  );
+};
+
+const avatar = (req, res) => {
+  let file = req.params.file;
+
+  const filePath = "./uploads/avatars/" + file;
+  fs.stat(filePath, (err, exists) => {
+    if (!exists) {
+      return res.status(404).send({
+        status: "Error",
+        message: "File not exists",
+      });
+    }
+
+    return res.sendFile(path.resolve(filePath));
   });
 };
 
@@ -235,6 +303,7 @@ module.exports = {
   login,
   getProfile,
   getUserList,
-  update,
-  upload,
+  updateUser,
+  uploadAvatar,
+  avatar,
 };
