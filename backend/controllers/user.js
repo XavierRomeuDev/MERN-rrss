@@ -5,6 +5,8 @@ const mongoosePaginate = require("mongoose-pagination");
 const fs = require("fs");
 const path = require("path");
 const followService = require("../services/followService");
+const Follow = require("../models/Follow");
+const Publication = require("../models/Publication");
 
 const test = (req, res) => {
   return res.status(200).send({
@@ -201,11 +203,15 @@ const updateUser = (req, res) => {
     if (userToUpdate.password) {
       let pwd = await bcrypt.hash(userToUpdate.password, 10);
       userToUpdate.password = pwd;
+    } else {
+      delete userToUpdate.password;
     }
 
     try {
       let userUpdated = await User.findByIdAndUpdate(
-        userIdentity.id,
+        {
+          _id: userIdentity.id,
+        },
         userToUpdate,
         { new: true }
       );
@@ -297,6 +303,34 @@ const avatar = (req, res) => {
   });
 };
 
+const followerCount = async (req, res) => {
+  let userId = req.user.id;
+
+  if (req.params.id) {
+    userId = req.params.id;
+  }
+
+  try {
+    const following = await Follow.count({ user: userId });
+
+    const followed = await Follow.count({ followed: userId });
+
+    const publications = await Publication.count({ user: userId });
+
+    return res.status(200).send({
+      userId,
+      following: following,
+      followed: followed,
+      publications: publications,
+    });
+  } catch (err) {
+    return res.status(500).send({
+      status: "Error",
+      message: "Cannot retrieve the user information",
+    });
+  }
+};
+
 module.exports = {
   test,
   register,
@@ -306,4 +340,5 @@ module.exports = {
   updateUser,
   uploadAvatar,
   avatar,
+  followerCount,
 };
