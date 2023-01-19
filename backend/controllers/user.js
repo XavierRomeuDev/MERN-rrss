@@ -99,6 +99,7 @@ const login = (req, res) => {
         status: "Success",
         message: "Login action complete",
         user: {
+          id: user.id,
           name: user.name,
           nick: user.nick,
         },

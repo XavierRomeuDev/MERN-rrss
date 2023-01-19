@@ -57,7 +57,7 @@ body {
     grid-template-areas: 
         "nav nav " 
         "content aside";
-    grid-template-rows: 8% auto auto;
+    grid-template-rows: 60px auto auto;
     grid-template-columns: 70% 30%;
     width: 100%;
     height: 100%;

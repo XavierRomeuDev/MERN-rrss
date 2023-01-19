@@ -1,10 +1,10 @@
-import { useState } from 'react'
-
+import { Header } from './components/layout/public/Header';
+import { Routing } from './router/Routing';
 function App() {
 
   return (
     <div className="layout">
-      <h1>React project</h1>
+      <Routing/>
     </div>
   )
 }
