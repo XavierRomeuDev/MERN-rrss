@@ -2,13 +2,14 @@ import React from "react";
 import { Global } from "../../helpers/Global";
 import { useForm } from "../../hooks/useForm";
 import { useState } from "react";
-
+import useAuth from "../../hooks/useAuth";
 
 export const Login = () => {
   const { form, changed } = useForm({});
-  const [ saved, setSaved ] = useState("not_sended");
+  const [saved, setSaved] = useState("not_sended");
+  const { setAuth } = useAuth();
 
-  const loginUser = async(e) => {
+  const loginUser = async (e) => {
     e.preventDefault();
 
     const userToLogin = form;
@@ -23,14 +24,18 @@ export const Login = () => {
 
     const data = await request.json();
 
-    if(data.status == "Success"){
-      setSaved("Success");
+    if (data.status == "Success") {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-    } else{
+      setSaved("Success");
+      setAuth(data.user);
+      setTimeout(() =>{
+        window.location.reload();
+      }, 1000);
+    } else {
       setSaved("Error");
     }
-  }
+  };
 
   return (
     <>
@@ -39,17 +44,25 @@ export const Login = () => {
       </header>
 
       <div className="content__posts">
-      {saved == "Success" ? <strong className="alert alert-success">Login successful</strong> : ""}
-        {saved =="Error" ? <strong className="alert alert-failure">"Login failed"</strong> : ""}
+        {saved == "Success" ? (
+          <strong className="alert alert-success">Login successful</strong>
+        ) : (
+          ""
+        )}
+        {saved == "Error" ? (
+          <strong className="alert alert-failure">"Login failed"</strong>
+        ) : (
+          ""
+        )}
         <form className="form-login" onSubmit={loginUser}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input type="email" name="email" onChange={changed}/>
+            <input type="email" name="email" onChange={changed} />
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" name="password" onChange={changed}/>
+            <input type="password" name="password" onChange={changed} />
           </div>
 
           <input type="submit" value="Login" className="btn btn-success" />

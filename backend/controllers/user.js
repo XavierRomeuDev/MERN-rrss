@@ -121,7 +121,7 @@ const getProfile = (req, res) => {
         });
       }
 
-      const followInfo = await followService.followingUser(req.user.id, id);
+      const followInfo = await followService.followingUser(req.user.id, userId);
 
       return res.status(200).send({
         status: "Success",
