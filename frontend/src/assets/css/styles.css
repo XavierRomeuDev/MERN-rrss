@@ -250,10 +250,19 @@ body {
     border-color: var(--color-border-btn-delete);
 }
 
+.post__button--green{
+    background-color: var(--color-background-btn-success);
+    border-color: var(--color-border-btn-success);
+}
 
 .post__button:hover{
     background-color: var(--color-background-btn-delete-hover);
     border-color: var(--color-border-btn-delete-hover);
+}
+
+.post__button--green:hover{
+    background-color: var(--color-background-btn-success-hover);
+    border-color: var(--color-border-btn-success-hover);
 }
 
 .content__container-btn{

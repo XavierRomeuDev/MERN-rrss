@@ -127,7 +127,7 @@ const getProfile = (req, res) => {
         status: "Success",
         user: userProfile,
         following: followInfo.following,
-        follower: followInfo.follower,
+        follower: followInfo.follower, 
       });
     });
 };
