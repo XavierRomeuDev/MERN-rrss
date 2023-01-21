@@ -63,6 +63,7 @@ const register = (req, res) => {
       message: "User register complete",
     });
   });
+  
 };
 
 const login = (req, res) => {
